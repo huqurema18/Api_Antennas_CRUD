@@ -9,12 +9,19 @@ app = Flask(__name__)
 client = MongoClient('mongodb+srv://RealityApp23:RealityApp@appantennas.ii8faau.mongodb.net/?retryWrites=true&w=majority')
 db = client['Antennas']  # Reemplazar con el nombre de tu base de datos
 collection = db['StudentsAntenas']  # Reemplazar con el nombre de tu colección
+comentarios= db['ComentariosAntenas']
 
 @app.route('/addStudent', methods=['POST'])
 def add_item():
     data = request.get_json()
     result = collection.insert_one(data)
-    return jsonify({"message": "Student added successfully", "_id": str(result.inserted_id)}), 201
+    return jsonify({"message": "Estudiante agregado satisfactoriamente", "_id": str(result.inserted_id)}), 201
+
+@app.route('/addComentario', methods=['POST'])
+def add_comentario():
+    data = request.get_json()
+    result = comentarios.insert_one(data)
+    return jsonify({"message": "Comentario agregado satisfactoriamente", "_id": str(result.inserted_id)}), 201
 
 
 @app.route('/students', methods=['GET'])
@@ -29,6 +36,13 @@ def get_students(codigo_clase):
     students = collection.find({'codigo_clase': codigo_clase})
     students_list = [student for student in students]
     return json_util.dumps(students_list), 200
+
+@app.route('/getComentary', methods=['GET'])
+def get_Comentary():
+    items = list(comentarios.find())
+    for item in items:
+        item['_id'] = str(item['_id'])  # Convertir ObjectId a str para la serialización JSON
+    return jsonify({"items": items}), 200
 
 
 @app.route('/items/<item_id>', methods=['DELETE'])
